@@ -180,12 +180,17 @@ async function startAI() {
     );
   }
 }
+let isThinking = false;
 
 async function askAI() {
+
+  if (isThinking) return;
 
   const question = input.value.trim();
 
   if (!question || !ai) return;
+
+  isThinking = true;
 
   input.value = "";
 
@@ -201,7 +206,7 @@ async function askAI() {
       {
         role: "system",
         content:
-  "You are Light Speed Future, a highly capable personal AI assistant. Your job is to help the user understand things, solve problems, plan projects, learn, create, and make decisions. Be clear, accurate, practical, and direct. Give the user the answer first, then explain when useful. Remember relevant information from the current conversation and use it to maintain context. Do not repeat questions the user has already answered. If you are unsure about something, say so instead of making up information. Match the user's level of knowledge and explain complicated things simply when needed. When giving instructions, provide them step by step and make it clear what the user should do next. Be helpful without being unnecessarily wordy."
+          "You are Light Speed Future, a highly capable personal AI assistant. Your job is to help the user understand things, solve problems, plan projects, learn, create, and make decisions. Be clear, accurate, practical, and direct. Give the answer first, then explain when useful. Remember relevant information from the current conversation. Do not repeat questions the user has already answered. Never invent facts. If you are unsure, say so. Follow instructions carefully. When giving instructions, use clear step-by-step guidance. Keep responses natural and easy to understand."
       },
       {
         role: "user",
@@ -210,8 +215,8 @@ async function askAI() {
     ];
 
     const result = await ai(messages, {
-      max_new_tokens: 200,
-      temperature: 0.7,
+      max_new_tokens: 150,
+      temperature: 0.5,
       do_sample: true
     });
 
@@ -249,12 +254,16 @@ async function askAI() {
       "I had trouble generating that answer. Please try again.",
       "ai"
     );
-  }
 
-  status.textContent = "AI ready ⚡";
-  input.disabled = false;
-  send.disabled = false;
-  input.focus();
+  } finally {
+
+    isThinking = false;
+
+    status.textContent = "AI ready ⚡";
+    input.disabled = false;
+    send.disabled = false;
+    input.focus();
+  }
 }
 
 send.addEventListener("click", askAI);
