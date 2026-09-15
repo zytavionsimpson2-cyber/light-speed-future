@@ -149,7 +149,7 @@ async function startAI() {
 
     status.textContent = "Downloading smaller AI brain...";
 
-    ai = await pipeline(
+ ai = await pipeline(
       "text-generation",
       "onnx-community/SmolLM2-135M-Instruct-ONNX",
       {
