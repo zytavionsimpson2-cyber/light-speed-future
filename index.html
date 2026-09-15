@@ -6,31 +6,43 @@
 <title>Light Speed Future ⚡</title>
 
 <style>
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
   background: #0b0b12;
   color: white;
   font-family: Arial, sans-serif;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 header {
   text-align: center;
-  padding: 20px;
+  padding: 18px;
   background: #11111a;
+  border-bottom: 1px solid #292936;
 }
 
 h1 {
   margin: 0;
+  font-size: 24px;
 }
 
 #status {
+  margin-top: 6px;
   color: #aaa;
-  margin-top: 8px;
+  font-size: 13px;
 }
 
 #chat {
+  flex: 1;
+  overflow-y: auto;
   padding: 20px;
-  padding-bottom: 100px;
+  padding-bottom: 90px;
 }
 
 .message {
@@ -38,6 +50,7 @@ h1 {
   padding: 12px 15px;
   margin: 12px 0;
   border-radius: 15px;
+  line-height: 1.45;
   white-space: pre-wrap;
 }
 
@@ -48,6 +61,7 @@ h1 {
 
 .ai {
   background: #1b1b27;
+  margin-right: auto;
 }
 
 #inputArea {
@@ -57,6 +71,7 @@ h1 {
   right: 0;
   padding: 12px;
   background: #11111a;
+  border-top: 1px solid #292936;
   display: flex;
   gap: 8px;
 }
@@ -64,25 +79,26 @@ h1 {
 #input {
   flex: 1;
   padding: 13px;
-  border: 0;
+  border: none;
   border-radius: 12px;
   background: #22222e;
   color: white;
   font-size: 16px;
+  outline: none;
 }
 
 #send {
-  padding: 0 18px;
-  border: 0;
+  border: none;
   border-radius: 12px;
+  padding: 0 18px;
   background: #315cff;
   color: white;
   font-weight: bold;
 }
 
-button:disabled,
-input:disabled {
-  opacity: .5;
+#send:disabled,
+#input:disabled {
+  opacity: 0.5;
 }
 </style>
 </head>
@@ -97,11 +113,12 @@ input:disabled {
 <div id="chat">
   <div class="message ai">
     Hello! I'm Light Speed Future. ⚡
+    I'm starting my AI brain.
   </div>
 </div>
 
 <div id="inputArea">
-  <input id="input" placeholder="Ask me anything..." disabled>
+  <input id="input" placeholder="Ask Light Speed Future..." disabled>
   <button id="send" disabled>Send</button>
 </div>
 
@@ -115,25 +132,29 @@ const input = document.getElementById("input");
 const send = document.getElementById("send");
 const status = document.getElementById("status");
 
-let assistant;
+let ai = null;
 
 function addMessage(text, type) {
   const message = document.createElement("div");
   message.className = "message " + type;
   message.textContent = text;
   chat.appendChild(message);
-  window.scrollTo(0, document.body.scrollHeight);
+  chat.scrollTop = chat.scrollHeight;
   return message;
 }
 
 async function startAI() {
+
   try {
 
-    status.textContent = "Downloading AI brain...";
+    status.textContent = "Downloading smaller AI brain...";
 
-    assistant = await pipeline(
+    ai = await pipeline(
       "text-generation",
-      "onnx-community/SmolLM2-360M-ONNX"
+      "onnx-community/SmolLM2-135M-Instruct-ONNX",
+      {
+        dtype: "q4f16"
+      }
     );
 
     status.textContent = "AI ready ⚡";
@@ -142,7 +163,7 @@ async function startAI() {
     send.disabled = false;
 
     addMessage(
-      "I'm online! Ask me something. ⚡",
+      "I'm online! ⚡ Ask me something.",
       "ai"
     );
 
@@ -153,7 +174,7 @@ async function startAI() {
     status.textContent = "AI could not start";
 
     addMessage(
-      "The AI could not start. Check your internet connection and try again.",
+      "The AI could not start on this device. Please try again.",
       "ai"
     );
   }
@@ -163,7 +184,7 @@ async function askAI() {
 
   const question = input.value.trim();
 
-  if (!question || !assistant) return;
+  if (!question || !ai) return;
 
   input.value = "";
 
@@ -179,7 +200,7 @@ async function askAI() {
       {
         role: "system",
         content:
-        "You are Light Speed Future, a helpful personal AI assistant. Answer clearly and directly."
+        "You are Light Speed Future, a helpful personal AI assistant. Give clear, useful, direct answers."
       },
       {
         role: "user",
@@ -187,19 +208,29 @@ async function askAI() {
       }
     ];
 
-    const result = await assistant(messages, {
-      max_new_tokens: 200
+    const result = await ai(messages, {
+      max_new_tokens: 200,
+      temperature: 0.7,
+      do_sample: true
     });
-
-    const generated = result[0].generated_text;
 
     let answer = "";
 
-    if (Array.isArray(generated)) {
-      const last = generated[generated.length - 1];
+    if (result && result[0]) {
 
-      if (last && last.content) {
-        answer = last.content;
+      const generated = result[0].generated_text;
+
+      if (Array.isArray(generated)) {
+
+        const last = generated[generated.length - 1];
+
+        if (last && last.content) {
+          answer = last.content;
+        }
+
+      } else if (typeof generated === "string") {
+
+        answer = generated;
       }
     }
 
@@ -227,10 +258,12 @@ async function askAI() {
 
 send.addEventListener("click", askAI);
 
-input.addEventListener("keydown", event => {
+input.addEventListener("keydown", function(event) {
+
   if (event.key === "Enter") {
     askAI();
   }
+
 });
 
 startAI();
