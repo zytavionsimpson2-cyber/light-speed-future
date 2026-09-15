@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>Light Speed Future</title>
 
   <style>
@@ -26,7 +27,7 @@
     }
 
     header {
-      padding: 20px;
+      padding: 18px 20px;
       border-bottom: 1px solid #202637;
       background: #080b14;
     }
@@ -44,10 +45,16 @@
 
     .chat {
       flex: 1;
-      padding: 25px 20px;
-      max-width: 800px;
+      padding: 25px 20px 120px;
+      max-width: 850px;
       width: 100%;
       margin: auto;
+    }
+
+    #messages {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
     }
 
     .welcome {
@@ -65,14 +72,38 @@
       line-height: 1.5;
     }
 
+    .message {
+      padding: 14px 16px;
+      border-radius: 14px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    .user {
+      background: #1c2638;
+      align-self: flex-end;
+      max-width: 82%;
+    }
+
+    .ai {
+      background: #111624;
+      align-self: flex-start;
+      max-width: 82%;
+    }
+
     .input-area {
-      padding: 15px;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 12px 15px;
       background: #080b14;
       border-top: 1px solid #202637;
     }
 
     .input-box {
-      max-width: 800px;
+      max-width: 850px;
       margin: auto;
       display: flex;
       gap: 10px;
@@ -80,6 +111,7 @@
 
     input {
       flex: 1;
+      min-width: 0;
       padding: 15px;
       border-radius: 12px;
       border: 1px solid #30384d;
@@ -89,42 +121,29 @@
       outline: none;
     }
 
+    input:focus {
+      border-color: #68738a;
+    }
+
     button {
       padding: 15px 20px;
       border: none;
       border-radius: 12px;
-      background: #ffffff;
+      background: white;
       color: #05070d;
       font-weight: bold;
       cursor: pointer;
     }
 
-    button:hover {
-      opacity: 0.85;
+    button:active {
+      transform: scale(0.97);
     }
 
-    #messages {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .message {
-      padding: 14px;
-      border-radius: 12px;
-      background: #111624;
-      line-height: 1.5;
-    }
-
-    .user {
-      background: #1c2638;
-      align-self: flex-end;
-      max-width: 80%;
-    }
-
-    .ai {
-      align-self: flex-start;
-      max-width: 80%;
+    .status {
+      text-align: center;
+      color: #68738a;
+      font-size: 12px;
+      margin-top: 10px;
     }
   </style>
 </head>
@@ -144,10 +163,11 @@
 
         <div class="welcome" id="welcome">
           <h2>Welcome to Light Speed Future</h2>
+
           <p>
             Your personal AI assistant is being built.
             <br>
-            Ask me something to test the interface.
+            Ask me something to begin.
           </p>
         </div>
 
@@ -156,52 +176,160 @@
     </main>
 
     <div class="input-area">
+
       <div class="input-box">
 
         <input
           id="userInput"
           type="text"
           placeholder="Ask Light Speed Future..."
+          autocomplete="off"
         >
 
         <button onclick="sendMessage()">Send</button>
 
       </div>
+
+      <div class="status">
+        Light Speed Future • AI system under construction
+      </div>
+
     </div>
 
   </div>
 
+
   <script>
+
+    let conversation = [];
+
+
+    function addMessage(text, type) {
+
+      const messages = document.getElementById("messages");
+
+      const message = document.createElement("div");
+
+      message.className = "message " + type;
+
+      message.textContent = text;
+
+      messages.appendChild(message);
+
+      window.scrollTo(0, document.body.scrollHeight);
+
+    }
+
+
+    function getAIResponse(question) {
+
+      const q = question.toLowerCase();
+
+
+      if (
+        q.includes("hello") ||
+        q.includes("hi") ||
+        q.includes("hey")
+      ) {
+        return "Hello! I'm Light Speed Future. ⚡ I'm ready to become your personal AI assistant.";
+      }
+
+
+      if (
+        q.includes("who are you") ||
+        q.includes("what are you")
+      ) {
+        return "I'm Light Speed Future, your personal AI assistant. My full AI brain is still being connected.";
+      }
+
+
+      if (
+        q.includes("what can you do")
+      ) {
+        return "My planned abilities include answering questions, analyzing information, understanding images, using current internet information, helping with business ideas, manhwa creation, game development, and eventually trading analysis.";
+      }
+
+
+      if (
+        q.includes("light speed future")
+      ) {
+        return "Light Speed Future is your personal AI assistant project. ⚡ We're building it step-by-step.";
+      }
+
+
+      if (
+        q.includes("help")
+      ) {
+        return "I can currently handle basic conversation and demonstrate the assistant interface. The next stage is connecting a real AI model.";
+      }
+
+
+      return "I received your question: \"" +
+        question +
+        "\"\n\nMy full AI model isn't connected yet. This version is the foundation we're using to build the real Light Speed Future brain.";
+    }
+
 
     function sendMessage() {
 
       const input = document.getElementById("userInput");
-      const messages = document.getElementById("messages");
-      const welcome = document.getElementById("welcome");
 
       const text = input.value.trim();
 
-      if (text === "") return;
+      if (text === "") {
+        return;
+      }
+
+
+      const welcome = document.getElementById("welcome");
 
       if (welcome) {
         welcome.remove();
       }
 
-      const userMessage = document.createElement("div");
-      userMessage.className = "message user";
-      userMessage.textContent = text;
 
-      messages.appendChild(userMessage);
+      addMessage(text, "user");
+
+      conversation.push({
+        role: "user",
+        content: text
+      });
+
 
       input.value = "";
 
-      const aiMessage = document.createElement("div");
-      aiMessage.className = "message ai";
-      aiMessage.textContent =
-        "I'm Light Speed Future. My AI brain isn't connected yet, but we're building it now.";
+      input.disabled = true;
 
-      messages.appendChild(aiMessage);
+
+      setTimeout(function() {
+
+        const response = getAIResponse(text);
+
+        addMessage(response, "ai");
+
+        conversation.push({
+          role: "assistant",
+          content: response
+        });
+
+        input.disabled = false;
+
+        input.focus();
+
+      }, 500);
+
     }
+
+
+    document
+      .getElementById("userInput")
+      .addEventListener("keydown", function(event) {
+
+        if (event.key === "Enter") {
+          sendMessage();
+        }
+
+      });
 
   </script>
 
