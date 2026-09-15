@@ -1,284 +1,271 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Light Speed Future ⚡</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Light Speed Future ⚡</title>
 
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+<style>
+* { box-sizing: border-box; }
 
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #0b0b12;
-      color: white;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
+body {
+  margin: 0;
+  background: #0b0b12;
+  color: white;
+  font-family: Arial, sans-serif;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
 
-    header {
-      padding: 18px;
-      text-align: center;
-      border-bottom: 1px solid #292936;
-      background: #11111a;
-    }
+header {
+  text-align: center;
+  padding: 18px;
+  background: #11111a;
+  border-bottom: 1px solid #292936;
+}
 
-    header h1 {
-      margin: 0;
-      font-size: 24px;
-    }
+h1 {
+  margin: 0;
+  font-size: 24px;
+}
 
-    header p {
-      margin: 6px 0 0;
-      color: #9999aa;
-      font-size: 13px;
-    }
+#status {
+  margin: 6px 0 0;
+  color: #999;
+  font-size: 13px;
+}
 
-    #chat {
-      flex: 1;
-      overflow-y: auto;
-      padding: 20px;
-      padding-bottom: 100px;
-    }
+#chat {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  padding-bottom: 90px;
+}
 
-    .message {
-      max-width: 85%;
-      padding: 12px 15px;
-      margin-bottom: 12px;
-      border-radius: 15px;
-      line-height: 1.45;
-      white-space: pre-wrap;
-    }
+.message {
+  max-width: 85%;
+  padding: 12px 15px;
+  margin-bottom: 12px;
+  border-radius: 15px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+}
 
-    .user {
-      background: #315cff;
-      margin-left: auto;
-      border-bottom-right-radius: 4px;
-    }
+.user {
+  background: #315cff;
+  margin-left: auto;
+}
 
-    .ai {
-      background: #1b1b27;
-      margin-right: auto;
-      border-bottom-left-radius: 4px;
-    }
+.ai {
+  background: #1b1b27;
+  margin-right: auto;
+}
 
-    #inputArea {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      padding: 12px;
-      background: #11111a;
-      border-top: 1px solid #292936;
-      display: flex;
-      gap: 8px;
-    }
+#inputArea {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 12px;
+  background: #11111a;
+  border-top: 1px solid #292936;
+  display: flex;
+  gap: 8px;
+}
 
-    #input {
-      flex: 1;
-      padding: 13px;
-      border: none;
-      border-radius: 12px;
-      background: #22222e;
-      color: white;
-      outline: none;
-      font-size: 16px;
-    }
+#input {
+  flex: 1;
+  padding: 13px;
+  border: none;
+  border-radius: 12px;
+  background: #22222e;
+  color: white;
+  font-size: 16px;
+  outline: none;
+}
 
-    #send {
-      border: none;
-      border-radius: 12px;
-      padding: 0 18px;
-      background: #315cff;
-      color: white;
-      font-weight: bold;
-      font-size: 15px;
-    }
+#send {
+  border: none;
+  border-radius: 12px;
+  padding: 0 18px;
+  background: #315cff;
+  color: white;
+  font-weight: bold;
+}
 
-    #send:disabled {
-      opacity: 0.5;
-    }
-  </style>
+button:disabled,
+input:disabled {
+  opacity: 0.5;
+}
+</style>
 </head>
 
 <body>
 
-  <header>
-    <h1>Light Speed Future ⚡</h1>
-    <p id="status">Loading AI...</p>
-  </header>
+<header>
+  <h1>Light Speed Future ⚡</h1>
+  <div id="status">Starting AI...</div>
+</header>
 
-  <div id="chat">
-    <div class="message ai">
-      Hello! I'm Light Speed Future. ⚡
-      Give me a moment while I load my AI brain.
-    </div>
+<div id="chat">
+  <div class="message ai">
+    Hello! I'm Light Speed Future. ⚡
+    I'm starting my AI brain now.
   </div>
+</div>
 
-  <div id="inputArea">
-    <input
-      id="input"
-      type="text"
-      placeholder="Ask Light Speed Future..."
-      disabled
-    >
-    <button id="send" disabled>Send</button>
-  </div>
+<div id="inputArea">
+  <input id="input" placeholder="Ask Light Speed Future..." disabled>
+  <button id="send" disabled>Send</button>
+</div>
 
-  <script type="module">
+<script type="module">
 
-    import { pipeline } from
-      "https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.0.1";
+import { pipeline } from
+"https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.0.1";
 
-    const chat = document.getElementById("chat");
-    const input = document.getElementById("input");
-    const send = document.getElementById("send");
-    const status = document.getElementById("status");
+const chat = document.getElementById("chat");
+const input = document.getElementById("input");
+const send = document.getElementById("send");
+const status = document.getElementById("status");
 
-    let generator = null;
+let ai = null;
 
-    function addMessage(text, type) {
-      const message = document.createElement("div");
-      message.className = "message " + type;
-      message.textContent = text;
-      chat.appendChild(message);
-      chat.scrollTop = chat.scrollHeight;
-      return message;
-    }
+function addMessage(text, type) {
+  const div = document.createElement("div");
+  div.className = "message " + type;
+  div.textContent = text;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+  return div;
+}
 
-    async function loadAI() {
-      try {
-        status.textContent = "Loading AI brain...";
+async function startAI() {
 
-        generator = await pipeline(
-          "text-generation",
-          "onnx-community/SmolLM2-360M-Instruct",
-          {
-            dtype: "q4"
-          }
-        );
+  try {
 
-        status.textContent = "AI ready ⚡";
-        input.disabled = false;
-        send.disabled = false;
-        input.focus();
+    status.textContent = "Downloading AI brain...";
 
-        addMessage(
-          "I'm online. ⚡ Ask me something!",
-          "ai"
-        );
-
-      } catch (error) {
-
-        console.error(error);
-
-        status.textContent = "AI failed to load";
-
-        addMessage(
-          "I couldn't load my AI brain on this device. Try refreshing the page and make sure you have a good internet connection.",
-          "ai"
-        );
+    ai = await pipeline(
+      "text-generation",
+      "onnx-community/SmolLM2-360M-Instruct",
+      {
+        dtype: "q4f16"
       }
-    }
+    );
 
-    async function sendMessage() {
+    status.textContent = "AI ready ⚡";
 
-      const text = input.value.trim();
+    input.disabled = false;
+    send.disabled = false;
 
-      if (!text || !generator) {
-        return;
+    addMessage(
+      "I'm online! ⚡ Ask me anything.",
+      "ai"
+    );
+
+  } catch (error) {
+
+    console.error(error);
+
+    status.textContent = "AI could not start";
+
+    addMessage(
+      "The AI could not start on this device. Please refresh the page and try again.",
+      "ai"
+    );
+  }
+}
+
+async function askAI() {
+
+  const question = input.value.trim();
+
+  if (!question || !ai) return;
+
+  input.value = "";
+
+  addMessage(question, "user");
+
+  input.disabled = true;
+  send.disabled = true;
+  status.textContent = "Thinking...";
+
+  try {
+
+    const messages = [
+      {
+        role: "system",
+        content:
+        "You are Light Speed Future, a helpful personal AI assistant. Give clear and useful answers."
+      },
+      {
+        role: "user",
+        content: question
       }
+    ];
 
-      input.value = "";
-
-      addMessage(text, "user");
-
-      send.disabled = true;
-      input.disabled = true;
-      status.textContent = "Thinking...";
-
-      const responseMessage = addMessage("", "ai");
-
-      try {
-
-        const messages = [
-          {
-            role: "system",
-            content:
-              "You are Light Speed Future, a helpful personal AI assistant. Give clear, useful answers."
-          },
-          {
-            role: "user",
-            content: text
-          }
-        ];
-
-        const result = await generator(messages, {
-          max_new_tokens: 256,
-          do_sample: true,
-          temperature: 0.7
-        });
-
-        let answer = "";
-
-        if (Array.isArray(result) && result.length > 0) {
-
-          const generated = result[0].generated_text;
-
-          if (Array.isArray(generated)) {
-
-            const lastMessage =
-              generated[generated.length - 1];
-
-            if (lastMessage && lastMessage.content) {
-              answer = lastMessage.content;
-            }
-
-          } else if (typeof generated === "string") {
-
-            answer = generated;
-
-          }
-        }
-
-        if (!answer) {
-          answer = "I couldn't generate an answer.";
-        }
-
-        responseMessage.textContent = answer;
-
-      } catch (error) {
-
-        console.error(error);
-
-        responseMessage.textContent =
-          "Something went wrong while I was thinking. Try asking again.";
-
-      }
-
-      status.textContent = "AI ready ⚡";
-      send.disabled = false;
-      input.disabled = false;
-      input.focus();
-    }
-
-    send.addEventListener("click", sendMessage);
-
-    input.addEventListener("keydown", function(event) {
-
-      if (event.key === "Enter") {
-        sendMessage();
-      }
-
+    const result = await ai(messages, {
+      max_new_tokens: 200,
+      temperature: 0.7,
+      do_sample: true
     });
 
-    loadAI();
+    let answer = "";
 
-  </script>
+    if (result && result[0]) {
+
+      const generated = result[0].generated_text;
+
+      if (Array.isArray(generated)) {
+
+        const last = generated[generated.length - 1];
+
+        if (last && last.content) {
+          answer = last.content;
+        }
+
+      } else if (typeof generated === "string") {
+
+        answer = generated;
+
+      }
+    }
+
+    if (!answer) {
+      answer = "I wasn't able to generate an answer.";
+    }
+
+    addMessage(answer, "ai");
+
+  } catch (error) {
+
+    console.error(error);
+
+    addMessage(
+      "I had trouble generating that answer. Try again.",
+      "ai"
+    );
+  }
+
+  status.textContent = "AI ready ⚡";
+  input.disabled = false;
+  send.disabled = false;
+  input.focus();
+}
+
+send.addEventListener("click", askAI);
+
+input.addEventListener("keydown", function(event) {
+  if (event.key === "Enter") {
+    askAI();
+  }
+});
+
+startAI();
+
+</script>
 
 </body>
 </html>
