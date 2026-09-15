@@ -4,12 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Light Speed Future ⚡</title>
-
 <style>
 * {
   box-sizing: border-box;
 }
-
 body {
   margin: 0;
   background: #0b0b12;
@@ -19,32 +17,27 @@ body {
   display: flex;
   flex-direction: column;
 }
-
 header {
   text-align: center;
   padding: 18px;
   background: #11111a;
   border-bottom: 1px solid #292936;
 }
-
 h1 {
   margin: 0;
   font-size: 24px;
 }
-
 #status {
   margin-top: 6px;
   color: #aaa;
   font-size: 13px;
 }
-
 #chat {
   flex: 1;
   overflow-y: auto;
   padding: 20px;
   padding-bottom: 90px;
 }
-
 .message {
   max-width: 85%;
   padding: 12px 15px;
@@ -53,17 +46,14 @@ h1 {
   line-height: 1.45;
   white-space: pre-wrap;
 }
-
 .user {
   background: #315cff;
   margin-left: auto;
 }
-
 .ai {
   background: #1b1b27;
   margin-right: auto;
 }
-
 #inputArea {
   position: fixed;
   bottom: 0;
@@ -75,7 +65,6 @@ h1 {
   display: flex;
   gap: 8px;
 }
-
 #input {
   flex: 1;
   padding: 13px;
@@ -86,7 +75,6 @@ h1 {
   font-size: 16px;
   outline: none;
 }
-
 #send {
   border: none;
   border-radius: 12px;
@@ -95,45 +83,82 @@ h1 {
   color: white;
   font-weight: bold;
 }
-
 #send:disabled,
 #input:disabled {
   opacity: 0.5;
 }
 </style>
 </head>
-
 <body>
-
 <header>
   <h1>Light Speed Future ⚡</h1>
   <div id="status">Starting AI...</div>
 </header>
-
 <div id="chat">
   <div class="message ai">
     Hello! I'm Light Speed Future. ⚡
     I'm starting my AI brain.
   </div>
 </div>
-
 <div id="inputArea">
   <input id="input" placeholder="Ask Light Speed Future..." disabled>
   <button id="send" disabled>Send</button>
 </div>
-
 <script type="module">
-
 import { pipeline } from
 "https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.0.1";
-
 const chat = document.getElementById("chat");
 const input = document.getElementById("input");
 const send = document.getElementById("send");
 const status = document.getElementById("status");
-
 let ai = null;
-
+let isThinking = false;
+/*
+  LIGHT SPEED FUTURE MEMORY
+  This stores the current conversation so the AI can understand
+  previous messages instead of only seeing the newest question.
+*/
+let conversation = [];
+/*
+  Main AI instructions
+*/
+const systemMessage = {
+  role: "system",
+  content: `
+You are Light Speed Future, a personal AI assistant.
+Your purpose is to help the user:
+- understand information
+- solve problems
+- learn
+- plan projects
+- write and create things
+- analyze ideas
+- make informed decisions
+- work through difficult questions
+- build software and websites
+- develop creative projects
+PERSONALITY:
+Be intelligent, helpful, calm, direct, and natural.
+Talk like a capable personal assistant rather than a robotic chatbot.
+RESPONSE RULES:
+1. Answer the user's actual question.
+2. Give the answer first when possible.
+3. Explain your reasoning when it is useful.
+4. Use simple language unless the user asks for technical detail.
+5. When giving instructions, use numbered steps.
+6. Do not unnecessarily repeat information.
+7. Do not ask a question if you already have the answer from the conversation.
+8. Remember relevant information from the current conversation.
+9. Do not invent facts.
+10. If you are unsure about something, clearly say that you are unsure.
+11. If the user asks for code, provide complete working code when practical.
+12. If the user is building something, help them one step at a time.
+13. Keep responses reasonably concise unless the user asks for detail.
+14. Never claim that you performed an action you did not actually perform.
+15. Treat previous messages as conversation context.
+You are Light Speed Future. ⚡
+`
+};
 function addMessage(text, type) {
   const message = document.createElement("div");
   message.className = "message " + type;
@@ -142,14 +167,10 @@ function addMessage(text, type) {
   chat.scrollTop = chat.scrollHeight;
   return message;
 }
-
 async function startAI() {
-
   try {
-
     status.textContent = "Downloading smaller AI brain...";
-
- ai = await pipeline(
+    ai = await pipeline(
       "text-generation",
       "onnx-community/SmolLM2-135M-Instruct-ONNX",
       {
@@ -157,128 +178,100 @@ async function startAI() {
         device: "wasm"
       }
     );
-
     status.textContent = "AI ready ⚡";
-
     input.disabled = false;
     send.disabled = false;
-
     addMessage(
       "I'm online! ⚡ Ask me something.",
       "ai"
     );
-
   } catch (error) {
-
     console.error(error);
-
     status.textContent = "AI could not start";
-
     addMessage(
       "The AI could not start on this device. Please try again.",
       "ai"
     );
   }
 }
-let isThinking = false;
-
 async function askAI() {
-
   if (isThinking) return;
-
   const question = input.value.trim();
-
   if (!question || !ai) return;
-
   isThinking = true;
-
   input.value = "";
-
   addMessage(question, "user");
-
   input.disabled = true;
   send.disabled = true;
   status.textContent = "Thinking...";
-
+  /*
+    Add the user's message to memory.
+  */
+  conversation.push({
+    role: "user",
+    content: question
+  });
   try {
-
+    /*
+      Give the AI:
+      1. Its instructions
+      2. Previous conversation
+      3. The newest question
+    */
     const messages = [
-      {
-        role: "system",
-        content:
-          "You are Light Speed Future, a highly capable personal AI assistant. Your job is to help the user understand things, solve problems, plan projects, learn, create, and make decisions. Be clear, accurate, practical, and direct. Give the answer first, then explain when useful. Remember relevant information from the current conversation. Do not repeat questions the user has already answered. Never invent facts. If you are unsure, say so. Follow instructions carefully. When giving instructions, use clear step-by-step guidance. Keep responses natural and easy to understand."
-      },
-      {
-        role: "user",
-        content: question
-      }
+      systemMessage,
+      ...conversation
     ];
-
     const result = await ai(messages, {
-      max_new_tokens: 150,
-      temperature: 0.5,
+      max_new_tokens: 250,
+      temperature: 0.6,
       do_sample: true
     });
-
     let answer = "";
-
     if (result && result[0]) {
-
       const generated = result[0].generated_text;
-
       if (Array.isArray(generated)) {
-
         const last = generated[generated.length - 1];
-
         if (last && last.content) {
-          answer = last.content;
+          answer = last.content.trim();
         }
-
       } else if (typeof generated === "string") {
-
-        answer = generated;
+        answer = generated.trim();
       }
     }
-
     if (!answer) {
-      answer = "I couldn't generate an answer.";
+      answer =
+        "I couldn't generate an answer. Please try asking again.";
     }
-
+    /*
+      Save the AI response into conversation memory.
+    */
+    conversation.push({
+      role: "assistant",
+      content: answer
+    });
     addMessage(answer, "ai");
-
   } catch (error) {
-
     console.error(error);
-
     addMessage(
       "I had trouble generating that answer. Please try again.",
       "ai"
     );
-
   } finally {
-
     isThinking = false;
-
     status.textContent = "AI ready ⚡";
     input.disabled = false;
     send.disabled = false;
     input.focus();
   }
 }
-
 send.addEventListener("click", askAI);
-
 input.addEventListener("keydown", function(event) {
-
   if (event.key === "Enter") {
     askAI();
   }
-
 });
-
 startAI();
-
 </script>
-
 </body>
 </html>
